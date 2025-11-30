@@ -1,3 +1,5 @@
+package U_project;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
@@ -19,6 +21,7 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 	JPanel pan1;
 	JPanel pan2;
 	JPanel pan3;
+    JButton manualBtn;
 
 	public mainWindow()
 	{
@@ -35,7 +38,6 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 	
 	public void actionPerformed(ActionEvent e)
 	{
-
 		if (e.getSource() == configBtn)
 		{
 			new config();
@@ -44,28 +46,39 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		{
 			new logWindow();
 		}
-		else if (Integer.parseInt(e.getActionCommand()) >= 0 && Integer.parseInt(e.getActionCommand()) <= Btn.length)
+		else if (e.getSource() == manualBtn)
 		{
-			jariNumber = Integer.parseInt(e.getActionCommand());
-			new parkWindow(jariNumber);
-			dispose();
+			new ManualParkWindow();
 		}
-		else
+		else 
 		{
-			for (int i = 1; i < Btn.length; i++)
-			{
-				String temp = Btn[i].getLabel();
-				int temp2 = Integer.parseInt(temp);
-				if (temp2 == Integer.parseInt(e.getActionCommand()))
-				{
-					jariNumber = i;
-					break;
+			String command = e.getActionCommand();
+			String carNumber = command;
+			int clickedJariNumber = -1;
+			
+			try {
+				clickedJariNumber = Integer.parseInt(command);
+				
+				ANPRController anpr = new ANPRController(this);
+				anpr.processParkSignal(clickedJariNumber); 
+				
+			} catch (NumberFormatException ex) {
+				
+				for(int i=1; i < Btn.length; i++){
+				    if(Btn[i].getLabel().equals(carNumber)){
+				        clickedJariNumber = i;
+				        break;
+				    }
+				}
+				
+				if(clickedJariNumber != -1){
+				    ANPRController anpr = new ANPRController(this);
+				    anpr.processUnparkSignal(clickedJariNumber, carNumber);
 				}
 			}
-			new unparkWindow(jariNumber);
-			dispose();
 		}
 	}
+    
 	public void gridInit()
 	{
 		for (int i = 1; i <= 15; i++)
@@ -106,14 +119,16 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		int i = 0;
 		while (i < obj.length)
 		{
-			int temp = Integer.parseInt(obj.jariNumber[i]); //string타입을 char타입으로 변환
+			int temp = Integer.parseInt(obj.jariNumber[i]); 
 			Btn[temp].setLabel(obj.carNumber[i]);
 			Btn[temp].setForeground(new Color(255, 0, 0));
 			i++;
 		}
 	}
+    
 	public void paint(Graphics g)
 	{
+        super.paint(g); 
 		g.setColor(Color.black);
 		g.fillRect(0, 0, 1500, 100);
 		g.setColor(Color.white);
@@ -148,6 +163,8 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		condition.setEditable(false);
 		pan3.add(history = new JButton("내역보기"));
 		pan3.add(configBtn = new JButton("요금설정"));
+        pan3.add(manualBtn = new JButton("수동 처리"));
+        manualBtn.addActionListener(this);
 		history.addActionListener(this);
 		configBtn.addActionListener(this);
 		add(pan3, "South");

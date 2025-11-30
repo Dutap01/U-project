@@ -1,12 +1,19 @@
-import java.util.*;
+package U_project;
 
-public interface time
-{
-	Calendar present = Calendar.getInstance();
-	int day = present.get(Calendar.DATE);
-	int hour = present.get(Calendar.HOUR_OF_DAY);
-	int min = present.get(Calendar.MINUTE);
-	int month = present.get(Calendar.MONTH) + 1;
-	int sec = present.get(Calendar.SECOND);
-	int year = present.get(Calendar.YEAR);
+import java.util.Date;
+import java.text.SimpleDateFormat;
+
+public interface time {
+    Date d = new Date();
+    SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+    SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
+    SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+    SimpleDateFormat hourFormat = new SimpleDateFormat("HH");
+    SimpleDateFormat minFormat = new SimpleDateFormat("mm");
+    
+    String year = yearFormat.format(d);
+    String month = monthFormat.format(d);
+    String day = dayFormat.format(d);
+    String hour = hourFormat.format(d);
+    String min = minFormat.format(d);
 }

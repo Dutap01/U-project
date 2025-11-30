@@ -1,3 +1,5 @@
+package U_project;
+
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.Dimension;
@@ -58,14 +60,13 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 	JTextField tf2;
 	JTextField tf3;
 	JTextField tf4;
-	static int fast_speedCnt = 0;
-	static int slow_speedCnt = 0;
+	
 	static int normalCnt = 0;
 	static int totalCar = 0;
 	static int totalCharge = 0;
 	static int smallCnt = 0;
-	String[] historyCol = { "자리 번호", "주차,충전유무", "차량번호", "입차시간", "출차시간", "주차시간(분)","요금(원)" };
-	String[] totalCol = { "통계", "경차", "일반차량", "완속충전", "고속충전", "차량댓수", "요금합계(원)" };
+	String[] historyCol = { "자리 번호", "주차유무", "차량번호", "입차시간", "출차시간", "주차시간(분)","요금(원)" };
+	String[] totalCol = { "통계", "경차", "일반차량", "차량댓수", "요금합계(원)" };
 
 	public logWindow() 
 	{
@@ -113,8 +114,6 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		totalCar = 0;
 		smallCnt = 0;
 		normalCnt = 0;
-		slow_speedCnt = 0;
-		fast_speedCnt = 0;
 		totalCharge = 0;
 		for (int i = 0; i < obj.length; i++)
 		{
@@ -135,10 +134,8 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		temp[0] = "";
 		temp[1] = Integer.toString(smallCnt);
 		temp[2] = Integer.toString(normalCnt);
-		temp[3] = Integer.toString(slow_speedCnt);
-		temp[4] = Integer.toString(fast_speedCnt);
-		temp[5] = Integer.toString(totalCar);
-		temp[6] = Integer.toString(totalCharge);
+		temp[3] = Integer.toString(totalCar);
+		temp[4] = Integer.toString(totalCharge);
 		model2.addRow(temp); 
 	}
 
@@ -147,8 +144,6 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		totalCar = 0;
 		smallCnt = 0;
 		normalCnt = 0;
-		slow_speedCnt = 0;
-		fast_speedCnt = 0;
 		totalCharge = 0;
 		for (int i = 0; i < obj.length; i++)
 		{
@@ -173,10 +168,8 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		temp[0] = "";
 		temp[1] = Integer.toString(smallCnt);
 		temp[2] = Integer.toString(normalCnt);
-		temp[3] = Integer.toString(slow_speedCnt);
-		temp[4] = Integer.toString(fast_speedCnt);
-		temp[5] = Integer.toString(totalCar);
-		temp[6] = Integer.toString(totalCharge);
+		temp[3] = Integer.toString(totalCar);
+		temp[4] = Integer.toString(totalCharge);
 		model2.addRow(temp);
 	}
 
@@ -185,8 +178,6 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		totalCar = 0;
 		smallCnt = 0;
 		normalCnt = 0;
-		slow_speedCnt = 0;
-		fast_speedCnt = 0;
 		totalCharge = 0;
 		for (int i = 0; i < obj.length; i++)
 		{
@@ -205,10 +196,8 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		temp[0] = "";
 		temp[1] = Integer.toString(smallCnt);
 		temp[2] = Integer.toString(normalCnt);
-		temp[3] = Integer.toString(slow_speedCnt);
-		temp[4] = Integer.toString(fast_speedCnt);
-		temp[5] = Integer.toString(totalCar);
-		temp[6] = Integer.toString(totalCharge);
+		temp[3] = Integer.toString(totalCar);
+		temp[4] = Integer.toString(totalCharge);
 		model2.addRow(temp);
 	}
 
@@ -321,10 +310,6 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 			smallCnt++;
 		else if (carSelect.equals("일반주차"))
 			normalCnt++;
-		else if (carSelect.equals("완속충전"))
-			slow_speedCnt++;
-		else if (carSelect.equals("고속충전"))
-			fast_speedCnt++;
 		totalCharge += Integer.parseInt(charge);
 	}
-};
+}

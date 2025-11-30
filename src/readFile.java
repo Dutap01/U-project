@@ -1,3 +1,5 @@
+package U_project;
+
 import java.io.*;
 import java.util.*;
 
@@ -30,10 +32,10 @@ public class readFile
 			FileReader file = new FileReader(new File("config.cfg"));
 			BufferedReader r = new BufferedReader(file);
 			temp1 = r.readLine();
-			c = new int[12];
+			c = new int[6];
 			StringTokenizer parse = new StringTokenizer(temp1, ",");
 			String temp[] = new String[15];
-			for (int i = 0; i < 12; i++)
+			for (int i = 0; i < 6; i++)
 			{
 				temp[i] = parse.nextToken();
 				c[i] = Integer.parseInt(temp[i]);
@@ -41,7 +43,7 @@ public class readFile
 		}
 		catch (IOException e)
 		{
-			String temp = "500,250,10000,1000,1000,15000,1500,1500,15000,2000,2000,20000";
+			String temp = "500,250,10000,1000,1000,15000";
 			try
 			{
 				FileWriter w = new FileWriter("config.cfg");
@@ -93,5 +95,4 @@ public class readFile
 		{
 		}
 	}
-
 }
