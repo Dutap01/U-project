@@ -14,10 +14,12 @@ repositories {
 
 // =======================================================
 // [중요] 프로젝트의 소스 경로 설정
-// 모든 .java 파일이 'src' 폴더 안에 있기 때문에 필요합니다.
 // =======================================================
 
 dependencies {
+    // **********************************************
+    // [중요] 모든 bytedeco 라이브러리는 버전 통일이 필수입니다.
+    // **********************************************
     val javacvVersion = "1.5.10"
     val opencvVersion = "4.9.0"
     val tesseractVersion = "5.3.4"
@@ -26,15 +28,18 @@ dependencies {
     // 1. JavaCV 핵심 라이브러리
     implementation("org.bytedeco:javacv:$javacvVersion") 
     
-    // 2. OpenCV 모듈 (영상 처리 및 카메라 접근에 필수)
+    // 2. OpenCV 모듈 
     implementation("org.bytedeco:opencv:$opencvVersion-$javacvVersion") 
     
-    // 3. Tesseract OCR (문자 인식에 필수)
+    // 3. Tesseract OCR 
     implementation("org.bytedeco:tesseract:$tesseractVersion-$javacvVersion") 
     
-    // 4. 네이티브 종속성 (Windows 64비트 기준, 이 파일들이 카메라 접근에 필수)
-    implementation("org.bytedeco:opencv:$opencvVersion-$javacvVersion:windows-x86_64")
-    implementation("org.bytedeco:tesseract:$tesseractVersion-$javacvVersion:windows-x86_64") 
+    // 4. [핵심 수정 부분] 모든 네이티브 종속성을 한 줄로 통합 (PLATFORM 사용)
+    // 이 라인이 windows-x86_64를 포함하여 openblas, leptonica 등의 DLL을 모두 로드합니다.
+    implementation("org.bytedeco:javacv-platform:$javacvVersion")
+    
+    // 이전에 개별적으로 정의했던 windows-x86_64 종속성들은 이 라인으로 모두 대체됩니다.
+    
     testImplementation(platform("org.junit:junit-bom:$junitVersion")) 
     
     // 테스트 코드를 컴파일하는 데 필요한 API (Test, Assertions)

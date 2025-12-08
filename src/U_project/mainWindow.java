@@ -21,7 +21,7 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 	JPanel pan1;
 	JPanel pan2;
 	JPanel pan3;
-    JButton manualBtn;
+	JButton manualBtn;
 
 	public mainWindow()
 	{
@@ -65,20 +65,20 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 			} catch (NumberFormatException ex) {
 				
 				for(int i=1; i < Btn.length; i++){
-				    if(Btn[i].getLabel().equals(carNumber)){
-				        clickedJariNumber = i;
-				        break;
-				    }
+					if(Btn[i].getLabel().equals(carNumber)){
+						clickedJariNumber = i;
+						break;
+					}
 				}
 				
 				if(clickedJariNumber != -1){
-				    ANPRController anpr = new ANPRController(this);
-				    anpr.processUnparkSignal(clickedJariNumber, carNumber);
+					ANPRController anpr = new ANPRController(this);
+					anpr.processUnparkSignal(clickedJariNumber, carNumber);
 				}
 			}
 		}
 	}
-    
+	
 	public void gridInit()
 	{
 		for (int i = 1; i <= 15; i++)
@@ -125,10 +125,10 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 			i++;
 		}
 	}
-    
+	
 	public void paint(Graphics g)
 	{
-        super.paint(g); 
+		super.paint(g); 
 		g.setColor(Color.black);
 		g.fillRect(0, 0, 1500, 100);
 		g.setColor(Color.white);
@@ -163,8 +163,8 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		condition.setEditable(false);
 		pan3.add(history = new JButton("내역보기"));
 		pan3.add(configBtn = new JButton("요금설정"));
-        pan3.add(manualBtn = new JButton("수동 처리"));
-        manualBtn.addActionListener(this);
+		pan3.add(manualBtn = new JButton("수동 처리"));
+		manualBtn.addActionListener(this);
 		history.addActionListener(this);
 		configBtn.addActionListener(this);
 		add(pan3, "South");

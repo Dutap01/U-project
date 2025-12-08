@@ -91,12 +91,12 @@ public class config extends JFrame implements ActionListener
 		setLayout(gridbag);
 		c = new GridBagConstraints();
 		c.fill = GridBagConstraints.BOTH;
-		tf0 = new JTextField("" + obj.c[0]);
-		tf1 = new JTextField("" + obj.c[1]);
-		tf2 = new JTextField("" + obj.c[2]);
-		tf3 = new JTextField("" + obj.c[3]);
-		tf4 = new JTextField("" + obj.c[4]);
-		tf5 = new JTextField("" + obj.c[5]);
+		tf0 = new JTextField("" + this.obj.c[0]);
+		tf1 = new JTextField("" + this.obj.c[1]);
+		tf2 = new JTextField("" + this.obj.c[2]);
+		tf3 = new JTextField("" + this.obj.c[3]);
+		tf4 = new JTextField("" + this.obj.c[4]);
+		tf5 = new JTextField("" + this.obj.c[5]);
 		confirm = new JButton("확인");
 		cancel = new JButton("취소");
 		confirm.addActionListener(this);
