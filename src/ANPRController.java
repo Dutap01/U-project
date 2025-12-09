@@ -80,7 +80,7 @@ public class ANPRController implements Runnable
                         String cleanNumber = result.replaceAll("[^0-9A-Za-z]", "").trim();
                         if (cleanNumber.length() >= 4) {
                             detectedNumber = cleanNumber.substring(0, 4); // 예시로 4자리만 사용
-                            System.out.println("✅ OCR 인식 성공 (원문: " + result.trim() + ", 추출: " + detectedNumber + ")");
+                            System.out.println("OCR 인식 성공 (원문: " + result.trim() + ", 추출: " + detectedNumber + ")");
                         } else {
                             detectedNumber = "0000"; // 인식된 문자열이 짧으면 실패 처리
                             System.err.println("OCR 인식 결과가 너무 짧습니다.");
@@ -96,7 +96,7 @@ public class ANPRController implements Runnable
             }
             
         } catch (Exception e) {
-            System.err.println("❌ 카메라 접근 실패 또는 JavaCV/Tesseract 오류! [ERROR: " + e.getMessage() + "]");
+            System.err.println("카메라 접근 실패 또는 JavaCV/Tesseract 오류! [ERROR: " + e.getMessage() + "]");
             JOptionPane.showMessageDialog(null, "카메라/Tesseract 오류! 수동 처리 필요. [ERROR: " + e.getMessage() + "]");
             detectedNumber = "0000";
         } finally {
