@@ -23,19 +23,7 @@ public class config extends JFrame implements ActionListener
 	JTextField tf3;
 	JTextField tf4;
 	JTextField tf5;
-	JTextField tf6;
-	JTextField tf7;
-	JTextField tf8;
-	JTextField tf9;
-	JTextField tf10;
-	JTextField tf11;
-	JTextField tf12;
-	JTextField tf13;
-	JTextField tf14;
-	JTextField tf15;
-	JTextField tf16;
-	JTextField tf17;
-	JTextField tf18;
+	
 
 	Checkbox small;
 	Checkbox normal;

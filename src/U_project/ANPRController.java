@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Set; 
 
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
@@ -28,6 +29,8 @@ public class ANPRController implements Runnable
 	private volatile boolean running = true; 
 	private volatile String lastDetectedPlate = "0000"; 
 	private final String tessdataPath; 
+	
+	private Set<String> registeredPlates; 
 
 	public ANPRController(mainWindow mainFrame)
 	{
@@ -36,6 +39,9 @@ public class ANPRController implements Runnable
 		tessdataPath = "C:\\parking"; 
 		
 		System.out.println("Tesseract 탐색 경로 초기 설정 완료: " + tessdataPath);
+		
+		readFile.readRegisteredPlates();
+		this.registeredPlates = readFile.registeredPlates;
 	}
 	
 	private void releaseGrabber(OpenCVFrameGrabber grabber) {
@@ -51,55 +57,17 @@ public class ANPRController implements Runnable
 	
 	public void run()
 	{
-		System.out.println("ANPR Controller 스레드 시작됨. 카메라 연속 스트리밍 모드.");
+		System.out.println("ANPR Controller 스레드 시작됨. (카메라 및 자동 인식 기능 비활성화 - 수동 모드)");
 		
-		OpenCVFrameGrabber grabber = null;
-
-		for (int i = 0; i < MAX_CAMERA_INDEX_TRIES; i++) {
+		while (running) {
 			try {
-				System.out.println("카메라 인덱스 " + i + " 시도 중...");
-				grabber = new OpenCVFrameGrabber(i); 
-				Thread.sleep(500);
-				grabber.start();
-				System.out.println("카메라 인덱스 " + i + "에서 스트리밍 성공.");
-				break;
-			} catch (Exception e) {
-				releaseGrabber(grabber);
-				grabber = null;
-			}
-		}
-
-		if (grabber == null) {
-			System.err.println("모든 인덱스 시도 실패! 카메라를 사용할 수 없습니다.");
-			JOptionPane.showMessageDialog(null, "카메라를 켜지 못했습니다. 시스템 환경을 확인하세요.");
-			running = false;
-		}
-
-		while (running && grabber != null) {
-			try {
-				Frame frame = grabber.grab();
-				
-				if (frame != null) {
-					String detectedNumber = this.processFrameForPlate(frame);
-					
-					if (!detectedNumber.equals("0000")) {
-						lastDetectedPlate = detectedNumber; 
-						System.out.println(">> 실시간 감지된 번호: " + lastDetectedPlate);
-						Thread.sleep(100); 
-					}
-				}
-				
-				Thread.sleep(30); 
-				
+				Thread.sleep(1000); 
 			} catch (InterruptedException e) {
 				Thread.currentThread().interrupt();
 				running = false;
-			} catch (Exception e) {
-				System.err.println("프레임 처리 중 오류 발생: " + e.getMessage());
 			}
 		}
 		
-		releaseGrabber(grabber);
 		System.out.println("ANPR Controller 스레드 종료됨.");
 	}
 
@@ -177,8 +145,17 @@ public class ANPRController implements Runnable
 		
 		this.lastDetectedPlate = "0000";
 		
-		String carSelect = isCompactCar(carNumber) ? "경차주차" : "일반주차";
-		System.out.println(carNumber + " 차량 종류 판별: " + carSelect + " -> 주차 처리 시작.");
+		boolean isRegistered = this.registeredPlates.contains(carNumber);
+		
+		String carSelect;
+		
+		if (isRegistered) {
+			carSelect = "등록차량"; 
+			System.out.println(carNumber + " 차량: 등록 차량으로 확인됨 -> 주차 처리 시작 (요금 면제).");
+		} else {
+			carSelect = isCompactCar(carNumber) ? "경차주차" : "일반주차";
+			System.out.println(carNumber + " 차량 종류 판별: " + carSelect + " -> 주차 처리 시작.");
+		}
 		
 		new writeFile(String.valueOf(jariNumber), carSelect, carNumber, writer.getCurrentTime(), "-", "-", "-");
 
@@ -205,6 +182,9 @@ public class ANPRController implements Runnable
 		JButton btn = mainFrame.Btn[jariNumber];
 		btn.setLabel(String.valueOf(jariNumber)); 
 		btn.setForeground(new java.awt.Color(0, 0, 0)); 
+		
+		btn.repaint();
+		mainFrame.revalidate();
 		mainFrame.repaint(); 
 	}
 

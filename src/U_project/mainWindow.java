@@ -15,13 +15,15 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 	String currentDate = "";
 	String currentTime = "";
 	JButton history;
+	JButton manualBtn;
 	int jariNumber;
 	JButton notUseBtn[] = new JButton[100];
 	readFile obj = new readFile();
 	JPanel pan1;
-	JPanel pan2;
+	public JPanel pan2;
 	JPanel pan3;
-	JButton manualBtn;
+	
+	private static final int TOTAL_PARKING_SPOTS = 90;
 
 	public mainWindow()
 	{
@@ -48,7 +50,7 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		}
 		else if (e.getSource() == manualBtn)
 		{
-			new ManualParkWindow();
+			new ManualParkWindow(this);
 		}
 		else 
 		{
@@ -65,7 +67,7 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 			} catch (NumberFormatException ex) {
 				
 				for(int i=1; i < Btn.length; i++){
-					if(Btn[i].getLabel().equals(carNumber)){
+					if(Btn[i] != null && Btn[i].getLabel().equals(carNumber)){
 						clickedJariNumber = i;
 						break;
 					}
@@ -119,9 +121,14 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		int i = 0;
 		while (i < obj.length)
 		{
-			int temp = Integer.parseInt(obj.jariNumber[i]); 
-			Btn[temp].setLabel(obj.carNumber[i]);
-			Btn[temp].setForeground(new Color(255, 0, 0));
+			try {
+				int temp = Integer.parseInt(obj.jariNumber[i]); 
+				if (temp < Btn.length && Btn[temp] != null) {
+					Btn[temp].setLabel(obj.carNumber[i]);
+					Btn[temp].setForeground(new Color(255, 0, 0));
+				}
+			} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+			}
 			i++;
 		}
 	}
@@ -147,6 +154,7 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		blank.setEnabled(false);
 		add(pan1, "North");
 	}
+	
 	public void pan2()
 	{
 		pan2 = new JPanel();
@@ -158,15 +166,21 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 	public void pan3()
 	{
 		pan3 = new JPanel();
+		
 		pan3.add(condition = new JTextArea());
-		condition.setPreferredSize(new Dimension(700, 200));
+		condition.setPreferredSize(new Dimension(700, 100)); 
+		Font conditionFont = new Font("NanumGothicOTF", Font.BOLD, 18);
+		condition.setFont(conditionFont);
 		condition.setEditable(false);
+		
 		pan3.add(history = new JButton("내역보기"));
 		pan3.add(configBtn = new JButton("요금설정"));
 		pan3.add(manualBtn = new JButton("수동 처리"));
+		
 		manualBtn.addActionListener(this);
 		history.addActionListener(this);
 		configBtn.addActionListener(this);
+		
 		add(pan3, "South");
 	}
 
@@ -174,10 +188,28 @@ class mainWindow extends JFrame implements Runnable, ActionListener
 		while (true)
 		{
 			Date d = new Date();
-			SimpleDateFormat date = new SimpleDateFormat("yyyy년 MM월 dd일");
-			SimpleDateFormat time = new SimpleDateFormat("hh시간 mm분 ss초");
-			currentDate = date.format(d);
+			SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy년 MM월 dd일");
+			SimpleDateFormat time = new SimpleDateFormat("hh시간 mm분 ss초"); 
+			
+			currentDate = sdf1.format(d);
 			currentTime = time.format(d);
+			
+			obj.readData();
+			condition.setText("총 주차 자리: " + TOTAL_PARKING_SPOTS + "개\n");
+			int cnt = 0;
+			
+			for(int i = 1; i <= obj.length; i++)
+			{
+				try {
+					int jariIndex = Integer.parseInt(obj.jariNumber[i - 1]);
+					if (jariIndex <= TOTAL_PARKING_SPOTS) {
+						cnt++;
+					}
+				} catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+				}
+			}
+			condition.append("현재 주차된 차량: " + cnt + "대");
+			
 			try
 			{
 				Thread.sleep(100);

@@ -3,96 +3,123 @@ package U_project;
 import java.io.*;
 import java.util.*;
 
-public class readFile
+public class readFile 
 {
-	public int c[];
-	public String carNumber[];
-	public String carSelect[];
-	public String charge[];
-	public String inTime[];
-	public String jariNumber[];
+	public static Set<String> registeredPlates = new HashSet<>();
+	
+	private static final String REGISTERED_FILE_NAME = "registered_plates.csv";
+	
+	public int c[] = new int[6];
+	public String jariNumber[] = new String[100];
+	public String carSelect[] = new String[100];
+	public String carNumber[] = new String[100];
+	public String parkTime[] = new String[100];
+	public String unparkTime[] = new String[100];
+	public String inTime[] = new String[100];
+	public String charge[] = new String[100];
 	public int length;
-	public String parkTime[];
-	public String printParkTime[];
-	public String printUnparkTime[];
-	public String temp[] = new String[5];
-	public String temp1 = "";
-	public String unparkTime[];
 
 	public readFile()
 	{
-		readdata();
-		readconfig();
+		readConfig();
+		readData();
 	}
-
-	public void readconfig()
-	{
-		try
-		{
-			FileReader file = new FileReader(new File("config.cfg"));
-			BufferedReader r = new BufferedReader(file);
-			temp1 = r.readLine();
-			c = new int[6];
-			StringTokenizer parse = new StringTokenizer(temp1, ",");
-			String temp[] = new String[15];
-			for (int i = 0; i < 6; i++)
-			{
-				temp[i] = parse.nextToken();
-				c[i] = Integer.parseInt(temp[i]);
-			}
-		}
-		catch (IOException e)
-		{
-			String temp = "500,250,10000,1000,1000,15000";
-			try
-			{
-				FileWriter w = new FileWriter("config.cfg");
-				w.write(temp);
-				w.close();
-			} catch (IOException e1)
-			{
-			}
-		}
-	}
-
-	public void readdata()
-	{
-		try
-		{
-			FileReader file = new FileReader(new File("data.csv"));
-			BufferedReader r = new BufferedReader(file);
-			String csvStr = "";
-			String tmpStr = "";
-			while (tmpStr != null)
-			{
-				tmpStr = r.readLine();
-				if (tmpStr != null)
-				{
-					csvStr = csvStr + tmpStr + ",";
+	
+	public static void readRegisteredPlates() {
+		registeredPlates.clear();
+		try (BufferedReader reader = new BufferedReader(new FileReader(REGISTERED_FILE_NAME))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				String plate = line.trim(); 
+				if (!plate.isEmpty()) {
+					registeredPlates.add(plate);
 				}
 			}
-			StringTokenizer parse = new StringTokenizer(csvStr, ",");
-			length = (parse.countTokens() / 7);
-			jariNumber = new String[length];
-			carSelect = new String[length];
-			carNumber = new String[length];
-			parkTime = new String[length];
-			unparkTime = new String[length];
-			inTime = new String[length];
-			charge = new String[length];
-			for (int i = 0; i < length; i++)
-			{
-				jariNumber[i] = parse.nextToken();
-				carSelect[i] = parse.nextToken();
-				carNumber[i] = parse.nextToken();
-				parkTime[i] = parse.nextToken();
-				unparkTime[i] = parse.nextToken();
-				inTime[i] = parse.nextToken();
-				charge[i] = parse.nextToken();
-			}
+		} catch (FileNotFoundException e) {
+			
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		catch (IOException e)
+	}
+
+	public void readConfig()
+	{
+		try
 		{
+			File configFile = new File("config.cfg");
+			if (!configFile.exists()) {
+				writeDefaultConfig(configFile);
+			}
+			
+			FileReader r = new FileReader(configFile);
+			int i = 0;
+			int j = 0;
+			String temp = "";
+			
+			while ((i = r.read()) != -1)
+			{
+				if (((char) i) == ',')
+				{
+					c[j] = Integer.parseInt(temp);
+					j++;
+					temp = "";
+				} else
+				{
+					temp = temp + (char) i;
+				}
+			}
+			c[j] = Integer.parseInt(temp);
+			r.close();
+			
+		} catch (IOException e)
+		{
+			
+		}
+	}
+	
+	private void writeDefaultConfig(File configFile) {
+		try (FileWriter w = new FileWriter(configFile)) {
+			w.write("1000,500,10000,2000,1000,20000"); 
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void readData()
+	{
+		try
+		{
+			File dataFile = new File("data.csv");
+			if (!dataFile.exists()) {
+				dataFile.createNewFile();
+			}
+
+			BufferedReader r = new BufferedReader(new FileReader(dataFile));
+			String line;
+			int i = 0;
+			
+			while ((line = r.readLine()) != null && i < 100)
+			{
+				if (line.trim().isEmpty()) continue;
+				
+				String[] fields = line.split(",");
+				if (fields.length == 7) 
+				{
+					jariNumber[i] = fields[0];
+					carSelect[i] = fields[1];
+					carNumber[i] = fields[2];
+					parkTime[i] = fields[3];
+					unparkTime[i] = fields[4];
+					inTime[i] = fields[5];
+					charge[i] = fields[6];
+					i++;
+				}
+			}
+			r.close();
+			length = i;
+		} catch (IOException e)
+		{
+			
 		}
 	}
 }

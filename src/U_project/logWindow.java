@@ -44,7 +44,7 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 	Label label9;
 	DefaultTableModel model;
 	DefaultTableModel model2;
-	readLog obj = new readLog();
+	readLog obj = new readLog(); 
 	JPanel pan1;
 	JPanel pan2;
 	JPanel pan3;
@@ -79,7 +79,7 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		pan1 = new JPanel();
 		pan2 = new JPanel();
 		pan3 = new JPanel();
-		defaultTable();
+		defaultTable(); 
 		pan1();
 		pan3();
 		setVisible(true);
@@ -188,7 +188,7 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 			temp[4] = obj.printUnparkTime[i];
 			temp[5] = obj.inTime[i];
 			temp[6] = obj.charge[i];
-			model.addRow(temp);
+			model.addRow(temp); 
 			total(obj.carSelect[i], obj.inTime[i], obj.charge[i]);
 			totalCar++;
 		}
@@ -258,7 +258,7 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		CheckboxGroup cbg = new CheckboxGroup();
 		cb1 = new Checkbox("차량번호", cbg, true);
 		cb2 = new Checkbox("날짜", cbg, false);
-		label3 = new Label("               ");
+		label3 = new Label("            "); 
 		label4 = new Label("년");
 		label5 = new Label("월");
 		label6 = new Label("일");
@@ -269,7 +269,7 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 		pan3.add(label3);
 		pan3.add(cb1);
 		pan3.add(tf1);
-		label7 = new Label("               ");
+		label7 = new Label("            "); 
 		pan3.add(label7);
 		pan3.add(cb2);
 		pan3.add(tf2);
@@ -308,8 +308,12 @@ public class logWindow extends JFrame implements ActionListener, ItemListener
 
 		if (carSelect.equals("경차주차"))
 			smallCnt++;
-		else if (carSelect.equals("일반주차"))
+        else if (carSelect.equals("일반주차"))
 			normalCnt++;
-		totalCharge += Integer.parseInt(charge);
+        
+        try {
+            totalCharge += Integer.parseInt(charge);
+        } catch (NumberFormatException e) {
+        }
 	}
 }

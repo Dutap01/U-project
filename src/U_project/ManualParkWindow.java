@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.StringTokenizer;
 import javax.swing.*;
 
 public class ManualParkWindow extends JFrame implements ActionListener, ItemListener, time
@@ -16,27 +15,31 @@ public class ManualParkWindow extends JFrame implements ActionListener, ItemList
 	String carNumber = "";
 	String carSelect = "";
 	CheckboxGroup cbgMode;
-	CheckboxGroup cbgType;
+	CheckboxGroup cbgType; 
 	
 	String jariNumber = "";
 	Label labelCarNum;
 	Label labelJariNum;
 	Label labelType;
 	
-	readFile obj = new readFile();
+	readFile obj = new readFile(); 
 	
 	JTextField tfCarNumber;
 	JTextField tfJariNumber;
 	
 	Checkbox cbParkMode;
 	Checkbox cbUnparkMode;
+    Checkbox cbRegisterMode;
 	
 	Checkbox small;
 	Checkbox normal;
 	
-	public ManualParkWindow()
+	private mainWindow mainFrame; 
+	
+	public ManualParkWindow(mainWindow mainFrame)
 	{
-		setTitle("수동 주차 관리");
+		this.mainFrame = mainFrame; 
+		setTitle("수동 주차 관리 및 등록");
 		setSize(500, 300);
 		setLocation(350, 250);
 		setVisible(true);
@@ -49,36 +52,79 @@ public class ManualParkWindow extends JFrame implements ActionListener, ItemList
 		if (ae.getSource() == confirm)
 		{
 			if (cbParkMode.getState()) {
-				processManualPark();
+				processManualPark(); 
 			} else if (cbUnparkMode.getState()) {
-				processManualUnpark();
-			}
-		}
+				processManualUnpark(); 
+			} else if (cbRegisterMode.getState()) {
+                processManualRegister();
+            }
+		} 
 		else if (ae.getSource() == cancel)
 		{
 			dispose();
 		}
 	}
 	
+	public void itemStateChanged(ItemEvent ie)
+	{
+		if (cbParkMode.getState()) {
+			tfCarNumber.setEnabled(true);
+			tfJariNumber.setEnabled(true);
+			small.setEnabled(true);
+			normal.setEnabled(true);
+			if (small.getState()) carSelect = "경차주차";
+			else if (normal.getState()) carSelect = "일반주차";
+			
+		} else if (cbUnparkMode.getState()) {
+			tfCarNumber.setEnabled(true);
+			tfJariNumber.setEnabled(false);
+			small.setEnabled(false);
+			normal.setEnabled(false);
+			carSelect = "";
+		} else if (cbRegisterMode.getState()) {
+            tfCarNumber.setEnabled(true);
+			tfJariNumber.setEnabled(false);
+			small.setEnabled(false);
+			normal.setEnabled(false);
+            carSelect = "";
+        }
+	}
+	
 	private void processManualPark() {
 		jariNumber = tfJariNumber.getText();
-		carNumber = tfCarNumber.getText();
+		carNumber = tfCarNumber.getText().trim(); 
 		
-		try {
-			Integer.parseInt(carNumber);
-		} catch (java.lang.NumberFormatException e2) {
-			JOptionPane.showMessageDialog(null, "차량번호는 4가지 이상의 숫자여야 합니다.");
+		if (jariNumber.isEmpty() || carNumber.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "자리 번호와 차량 번호를 모두 입력해주세요.");
 			return;
+		}
+        
+        readFile.readRegisteredPlates();
+        boolean isRegistered = readFile.registeredPlates.contains(carNumber);
+
+		if (isRegistered) {
+			carSelect = "등록차량"; 
+		} else {
+            if (!small.getState() && !normal.getState()) {
+                JOptionPane.showMessageDialog(null, "차량 종류(경차/일반)를 선택해주세요.");
+                return;
+            }
+            carSelect = small.getState() ? "경차주차" : "일반주차";
 		}
 
-		if (carSelect.equals("")) {
-			JOptionPane.showMessageDialog(null, "주차유무를 선택하세요.");
-			return;
-		} else if (carNumber.length() < 4) {
-			JOptionPane.showMessageDialog(null, "차량 번호는 4자리 이상이여야 합니다.");
+		int jariIndex;
+		try {
+			jariIndex = Integer.parseInt(jariNumber);
+			if (jariIndex <= 0 || jariIndex >= mainFrame.Btn.length) {
+				JOptionPane.showMessageDialog(null, "유효한 자리 번호를 입력해주세요.");
+				return;
+			}
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(null, "자리번호는 숫자로 입력해주세요.");
 			return;
 		}
 		
+		obj.readData(); 
 		for (int i = 0; i < obj.length; i++) {
 			try {
 				if (carNumber.equals(obj.carNumber[i])) {
@@ -90,67 +136,79 @@ public class ManualParkWindow extends JFrame implements ActionListener, ItemList
 		}
 		
 		writeFile writer = new writeFile();
-		String parkTime = "" + writer.year + "/" + writer.month + "/" + writer.day + "/" + writer.hour + "/" + writer.min;
+		String parkTime = "" + writer.year + "/" + writer.month + "/" + writer.day + "/" + writer.hour + "/" + writer.min; 
 		new writeFile(jariNumber, carSelect, carNumber, parkTime, "-", "-", "-");
-		JOptionPane.showMessageDialog(null, jariNumber + "번에 " + carNumber + " 차량이 수동 입차되었습니다.");
+		
+		JButton btn = mainFrame.Btn[jariIndex];
+		btn.setLabel(carNumber); 
+		btn.setForeground(new java.awt.Color(255, 0, 0)); 
+		
+		mainFrame.repaint(); 
+		mainFrame.pan2.revalidate();
+        
+        String message = isRegistered ? "등록차량으로 " : "";
+		JOptionPane.showMessageDialog(null, jariNumber + "번에 " + carNumber + " 차량이 " + message + "수동 입차되었습니다.");
 		dispose();
 	}
 	
 	private void processManualUnpark() {
-		carNumber = tfCarNumber.getText();
-		int targetJariNumber = -1;
+		carNumber = tfCarNumber.getText().trim();
+		if (carNumber.isEmpty()) {
+			JOptionPane.showMessageDialog(null, "차량 번호를 입력해주세요.");
+			return;
+		}
+
+		obj.readData(); 
 		
-		for (int i = 0; i < obj.length; i++) {
-			try {
-				if (carNumber.equals(obj.carNumber[i])) {
-					targetJariNumber = Integer.parseInt(obj.jariNumber[i]);
-					break;
-				}
-			} catch (java.lang.NullPointerException e1) {
+		writeFile writer = new writeFile();
+		
+		String currentJariNumber = null;
+		for(int i = 0; i < obj.length; i++) {
+			if(obj.carNumber[i] != null && obj.carNumber[i].equals(carNumber)) {
+				currentJariNumber = obj.jariNumber[i];
+				break;
 			}
 		}
 		
-		if (targetJariNumber == -1) {
-			JOptionPane.showMessageDialog(null, "입차 기록이 없는 차량입니다.");
+		if (currentJariNumber == null) {
+			JOptionPane.showMessageDialog(null, "주차된 차량 목록에서 " + carNumber + "를 찾을 수 없습니다.");
 			return;
 		}
 		
-		writeFile writer = new writeFile();
-		writer.processUnpark(targetJariNumber, carNumber);
-		writer.deleteRecord(carNumber);
+		writer.processUnpark(Integer.parseInt(currentJariNumber), carNumber); 
+
+		try {
+			int jariIndex = Integer.parseInt(currentJariNumber);
+			JButton btn = mainFrame.Btn[jariIndex];
+			btn.setLabel("  " + jariIndex + "번"); 
+			btn.setForeground(new java.awt.Color(0, 0, 0)); 
+
+			mainFrame.repaint();
+			mainFrame.pan2.revalidate();
+		} catch (NumberFormatException e) {
+		}
 		
-		JOptionPane.showMessageDialog(null, carNumber + " 차량의 출차 및 정산이 완료되었습니다. 요금은 log.csv에 기록됩니다.");
+		JOptionPane.showMessageDialog(null, carNumber + " 차량이 " + currentJariNumber + "번에서 수동 출차되었습니다.");
 		dispose();
 	}
-	
+    
+    private void processManualRegister() {
+        carNumber = tfCarNumber.getText().trim();
+        
+        if (!carNumber.matches("\\d{4}")) { 
+            JOptionPane.showMessageDialog(null, "유효한 4자리 차량 번호를 입력하세요.", "경고", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-	public void itemStateChanged(ItemEvent ie)
-	{
-		if (ie.getSource() == cbParkMode) {
-			tfJariNumber.setEnabled(true);
-			tfCarNumber.setEnabled(true);
-			small.setEnabled(true);
-			normal.setEnabled(true);
-		} else if (ie.getSource() == cbUnparkMode) {
-			tfJariNumber.setEnabled(false);
-			tfCarNumber.setEnabled(true);
-			small.setEnabled(false);
-			normal.setEnabled(false);
-			small.setState(false);
-			normal.setState(false);
-			carSelect = "";
-		}
-		
-		if (ie.getSource() == small)
-		{
-			carSelect = "경차주차";
-		}
-		else if (ie.getSource() == normal)
-		{
-			carSelect = "일반주차";
-		}
-	}
-	
+        writeFile writer = new writeFile();
+        writer.registerNewCar(carNumber); 
+        
+        readFile.readRegisteredPlates();
+        
+        dispose();
+    }
+
+
 	public void layout(Component obj, int x, int y, int width, int height)
 	{
 		c.gridx = x; 
@@ -170,41 +228,45 @@ public class ManualParkWindow extends JFrame implements ActionListener, ItemList
 		cbgMode = new CheckboxGroup();
 		cbParkMode = new Checkbox("수동 입차", cbgMode, true);
 		cbUnparkMode = new Checkbox("수동 출차", cbgMode, false);
+        cbRegisterMode = new Checkbox("차량 등록", cbgMode, false);
 		cbParkMode.addItemListener(this);
 		cbUnparkMode.addItemListener(this);
+        cbRegisterMode.addItemListener(this);
 		
 		layout(new Label("모드 선택:"), 0, 0, 1, 1);
-		layout(cbParkMode, 1, 0, 2, 1);
-		layout(cbUnparkMode, 3, 0, 2, 1);
+		layout(cbParkMode, 1, 0, 1, 1);
+		layout(cbUnparkMode, 2, 0, 1, 1);
+        layout(cbRegisterMode, 3, 0, 1, 1);
 		
-		cbgType = new CheckboxGroup();
-		small = new Checkbox("경차주차", cbgType, false);
+        cbgType = new CheckboxGroup();
+		small = new Checkbox("경차주차", cbgType, false); 
 		normal = new Checkbox("일반주차", cbgType, false);
 		small.addItemListener(this);
 		normal.addItemListener(this);
 		
-		layout(new Label("주차유무"), 0, 1, 1, 1);
-		layout(small, 1, 1, 2, 1);
-		layout(normal, 3, 1, 2, 1);
+		layout(new Label("차량 구분:"), 0, 1, 1, 1);
+		layout(small, 1, 1, 1, 1);
+		layout(normal, 2, 1, 1, 1);
 		
-		labelCarNum = new Label("차량번호");
-		tfCarNumber = new JTextField();
-		labelJariNum = new Label("자리번호");
-		tfJariNumber = new JTextField();
+		labelJariNum = new Label("자리 번호:");
+		tfJariNumber = new JTextField(10);
+		layout(labelJariNum, 0, 2, 1, 1);
+		layout(tfJariNumber, 1, 2, 3, 1);
 		
-		layout(labelCarNum, 0, 2, 1, 1);
-		layout(tfCarNumber, 1, 2, 4, 1);
-		layout(labelJariNum, 0, 3, 1, 1);
-		layout(tfJariNumber, 1, 3, 4, 1);
+		labelCarNum = new Label("차량 번호 (4자리):");
+		tfCarNumber = new JTextField(10);
+		layout(labelCarNum, 0, 3, 1, 1);
+		layout(tfCarNumber, 1, 3, 3, 1);
 		
 		confirm = new JButton("확인");
 		cancel = new JButton("취소");
 		confirm.addActionListener(this);
 		cancel.addActionListener(this);
 		
-		layout(new Label(""), 1, 4, 1, 1); 
-		layout(confirm, 1, 5, 2, 1);
-		layout(cancel, 3, 5, 2, 1);
-
+		layout(confirm, 1, 4, 1, 1);
+		layout(cancel, 2, 4, 1, 1);
+        
+        small.setEnabled(true);
+        normal.setEnabled(true);
 	}
 }
